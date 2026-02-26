@@ -64,8 +64,51 @@ const ExchangeDetail = ({ exchange, otherUserProfile, open, onClose, onUpdate }:
   if (!exchange || !user) return null;
 
   const isCreator = exchange.creator_id === user.id;
+  const isCounterparty = exchange.counterparty_id === user.id;
+  const exchangeData = exchange as Tables<"exchanges"> & { accepted_by_counterparty?: boolean; reminder_enabled?: boolean; reminder_interval_days?: number | null };
+  const isPendingAcceptance = exchange.status === "pending" && !exchangeData.accepted_by_counterparty;
   const myConfirmed = isCreator ? exchange.creator_confirmed_settled : exchange.counterparty_confirmed_settled;
   const otherConfirmed = isCreator ? exchange.counterparty_confirmed_settled : exchange.creator_confirmed_settled;
+
+  const handleAcceptExchange = async () => {
+    const { error } = await supabase
+      .from("exchanges")
+      .update({ accepted_by_counterparty: true, status: "active" } as Record<string, unknown>)
+      .eq("id", exchange.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Exchange accepted!");
+      onUpdate();
+    }
+  };
+
+  const handleDeclineExchange = async () => {
+    const { error } = await supabase
+      .from("exchanges")
+      .update({ status: "cancelled" } as Record<string, unknown>)
+      .eq("id", exchange.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Exchange declined.");
+      onUpdate();
+    }
+  };
+
+  const handleToggleReminder = async (enabled: boolean) => {
+    const { error } = await supabase
+      .from("exchanges")
+      .update({ reminder_enabled: enabled, reminder_interval_days: enabled ? 1 : null } as Record<string, unknown>)
+      .eq("id", exchange.id);
+    if (error) toast.error(error.message);
+  };
+
+  const handleReminderInterval = async (days: string) => {
+    const { error } = await supabase
+      .from("exchanges")
+      .update({ reminder_interval_days: parseInt(days) } as Record<string, unknown>)
+      .eq("id", exchange.id);
+    if (error) toast.error(error.message);
+  };
 
   const handleConfirmSettle = async () => {
     const field = isCreator ? "creator_confirmed_settled" : "counterparty_confirmed_settled";
