@@ -182,13 +182,64 @@ const ExchangeDetail = ({ exchange, otherUserProfile, open, onClose, onUpdate }:
 
           {exchange.contract_terms && (
             <div className="bg-secondary/50 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1"><FileText className="w-3 h-3" /> Contract</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1"><FileText className="w-3 h-3" /> Contract Terms</p>
               <p className="text-sm text-foreground">{exchange.contract_terms}</p>
             </div>
           )}
 
+          {/* Acceptance (counterparty must accept before exchange becomes active) */}
+          {isPendingAcceptance && isCounterparty && (
+            <div className="bg-neon-orange/10 border border-neon-orange/30 rounded-lg p-4 space-y-3">
+              <p className="text-sm font-medium text-foreground">⚠️ Review & Accept</p>
+              <p className="text-xs text-muted-foreground">Review the terms above carefully before accepting this exchange.</p>
+              <div className="flex gap-2">
+                <Button onClick={handleAcceptExchange} size="sm" className="bg-neon-green text-primary-foreground hover:bg-neon-green/90">
+                  Accept Exchange
+                </Button>
+                <Button onClick={handleDeclineExchange} size="sm" variant="ghost" className="text-destructive hover:text-destructive/80">
+                  Decline
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {isPendingAcceptance && isCreator && (
+            <div className="bg-secondary/30 rounded-lg p-3">
+              <p className="text-sm text-muted-foreground">⏳ Waiting for {otherUserProfile?.display_name || "the other party"} to accept...</p>
+            </div>
+          )}
+
+          {/* Reminders */}
+          {exchange.status !== "settled" && exchange.status !== "cancelled" && isCreator && (
+            <div className="bg-secondary/30 rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-foreground">Auto Reminders</Label>
+                <Switch
+                  checked={!!exchangeData.reminder_enabled}
+                  onCheckedChange={handleToggleReminder}
+                />
+              </div>
+              {exchangeData.reminder_enabled && (
+                <Select
+                  value={String(exchangeData.reminder_interval_days || 1)}
+                  onValueChange={handleReminderInterval}
+                >
+                  <SelectTrigger className="bg-secondary/50 border-glass-border/40 text-foreground text-sm">
+                    <SelectValue placeholder="Interval" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-glass-border/40">
+                    <SelectItem value="1">Every day</SelectItem>
+                    <SelectItem value="2">Every 2 days</SelectItem>
+                    <SelectItem value="3">Every 3 days</SelectItem>
+                    <SelectItem value="7">Weekly</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          )}
+
           {/* Settle */}
-          {exchange.status !== "settled" && exchange.status !== "cancelled" && (
+          {exchange.status === "active" && (
             <div className="bg-secondary/30 rounded-lg p-3 space-y-2">
               <p className="text-sm font-medium text-foreground">Settlement</p>
               <div className="flex items-center gap-2 text-sm">

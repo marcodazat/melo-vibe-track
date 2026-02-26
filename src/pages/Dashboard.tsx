@@ -142,11 +142,13 @@ const Dashboard = () => {
             <h2 className="text-2xl font-bold text-foreground">
               Hey{myProfile?.display_name ? `, ${myProfile.display_name}` : ""} 👋
             </h2>
-          <p className="text-muted-foreground">
-            {activeCount === 0
-              ? "No active exchanges. Create one!"
-              : `You have ${activeCount} active exchange${activeCount > 1 ? "s" : ""}`}
-          </p>
+            <p className="text-muted-foreground">
+              {activeCount === 0
+                ? "No active exchanges. Create one!"
+                : `You have ${activeCount} active exchange${activeCount > 1 ? "s" : ""}`}
+            </p>
+          </div>
+          {myProfile && <TrustScoreBadge score={(myProfile as Tables<"profiles"> & { trust_score?: number }).trust_score ?? 60} size="md" showLabel />}
         </motion.div>
 
         {/* Actions */}
