@@ -1,0 +1,9 @@
+{
+  "appId": "app.lovable.cd533557c02842e782a80c9d79c4de7a",
+  "appName": "Melo",
+  "webDir": "dist",
+  "server": {
+    "url": "https://cd533557-c028-42e7-82a8-0c9d79c4de7a.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  }
+}
