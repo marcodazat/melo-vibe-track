@@ -4,8 +4,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Music, LogOut, User, Search, Users } from "lucide-react";
+import { LogOut, User, Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import meloLogo from "@/assets/melo-logo.png";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ExchangeCard from "@/components/ExchangeCard";
@@ -102,7 +103,7 @@ const Dashboard = () => {
       <header className="glass-strong border-b border-glass-border/30 sticky top-0 z-50">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Music className="w-6 h-6 text-primary" />
+            <img src={meloLogo} alt="Melo" className="w-8 h-8 rounded-lg" />
             <h1 className="text-lg font-bold neon-text text-primary">Melo</h1>
           </div>
           <div className="flex items-center gap-1">

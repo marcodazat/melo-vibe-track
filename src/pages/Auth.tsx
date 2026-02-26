@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Music, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import meloLogo from "@/assets/melo-logo.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -54,9 +55,9 @@ const Auth = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", delay: 0.2 }}
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 neon-glow mb-4"
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl neon-glow mb-4 overflow-hidden"
           >
-            <Music className="w-8 h-8 text-primary" />
+            <img src={meloLogo} alt="Melo" className="w-full h-full object-cover" />
           </motion.div>
           <h1 className="text-3xl font-bold neon-text text-primary">Melo</h1>
           <p className="text-muted-foreground mt-2">

@@ -4,51 +4,51 @@
 
 @layer base {
   :root {
-    --background: 225 25% 6%;
-    --foreground: 210 40% 95%;
+    --background: 150 30% 6%;
+    --foreground: 60 30% 92%;
 
-    --card: 225 20% 10%;
-    --card-foreground: 210 40% 95%;
+    --card: 150 20% 10%;
+    --card-foreground: 60 30% 92%;
 
-    --popover: 225 20% 10%;
-    --popover-foreground: 210 40% 95%;
+    --popover: 150 20% 10%;
+    --popover-foreground: 60 30% 92%;
 
-    --primary: 180 100% 50%;
-    --primary-foreground: 225 25% 6%;
+    --primary: 152 76% 44%;
+    --primary-foreground: 60 40% 94%;
 
-    --secondary: 225 15% 16%;
-    --secondary-foreground: 210 40% 90%;
+    --secondary: 150 15% 14%;
+    --secondary-foreground: 60 20% 88%;
 
-    --muted: 225 15% 14%;
-    --muted-foreground: 215 15% 55%;
+    --muted: 150 12% 13%;
+    --muted-foreground: 150 10% 52%;
 
-    --accent: 330 80% 60%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 42 80% 55%;
+    --accent-foreground: 150 30% 8%;
 
     --destructive: 0 70% 55%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 60 40% 98%;
 
-    --border: 225 15% 18%;
-    --input: 225 15% 18%;
-    --ring: 180 100% 50%;
+    --border: 150 12% 18%;
+    --input: 150 12% 18%;
+    --ring: 152 76% 44%;
 
     --radius: 0.75rem;
 
-    --glass: 225 20% 12%;
-    --glass-border: 225 15% 22%;
-    --neon-glow: 180 100% 50%;
+    --glass: 150 18% 11%;
+    --glass-border: 150 12% 22%;
+    --neon-glow: 152 76% 44%;
     --neon-pink: 330 80% 60%;
-    --neon-green: 150 80% 50%;
+    --neon-green: 152 76% 44%;
     --neon-orange: 30 90% 55%;
 
-    --sidebar-background: 225 20% 8%;
-    --sidebar-foreground: 210 40% 90%;
-    --sidebar-primary: 180 100% 50%;
-    --sidebar-primary-foreground: 225 25% 6%;
-    --sidebar-accent: 225 15% 16%;
-    --sidebar-accent-foreground: 210 40% 90%;
-    --sidebar-border: 225 15% 18%;
-    --sidebar-ring: 180 100% 50%;
+    --sidebar-background: 150 20% 8%;
+    --sidebar-foreground: 60 20% 88%;
+    --sidebar-primary: 152 76% 44%;
+    --sidebar-primary-foreground: 60 40% 94%;
+    --sidebar-accent: 150 15% 16%;
+    --sidebar-accent-foreground: 60 20% 88%;
+    --sidebar-border: 150 12% 18%;
+    --sidebar-ring: 152 76% 44%;
   }
 }
 
@@ -96,7 +96,7 @@
   .gradient-mesh {
     background: 
       radial-gradient(ellipse at 20% 50%, hsl(var(--neon-glow) / 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, hsl(var(--neon-pink) / 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, hsl(var(--accent) / 0.04) 0%, transparent 50%),
       radial-gradient(ellipse at 50% 80%, hsl(var(--neon-green) / 0.04) 0%, transparent 50%);
   }
 

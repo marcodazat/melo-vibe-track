@@ -2,8 +2,9 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
-import { Music, ArrowRight, DollarSign, Heart, Shield } from "lucide-react";
+import { ArrowRight, DollarSign, Heart, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import meloLogo from "@/assets/melo-logo.png";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -21,9 +22,9 @@ const Index = () => {
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", duration: 0.8 }}
-            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-primary/10 neon-glow-strong mb-8"
+            className="inline-flex items-center justify-center w-24 h-24 rounded-3xl neon-glow-strong mb-8 overflow-hidden"
           >
-            <Music className="w-10 h-10 text-primary" />
+            <img src={meloLogo} alt="Melo" className="w-full h-full object-cover" />
           </motion.div>
 
           <motion.h1
