@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Bell } from "lucide-react";
+import { Bell, BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import { registerPushNotifications, isPushEnabled } from "@/lib/pushNotifications";
+import { toast } from "sonner";
 
 interface Notification {
   id: string;
