@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Bell } from "lucide-react";
+import { Bell, BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import { registerPushNotifications, isPushEnabled } from "@/lib/pushNotifications";
+import { toast } from "sonner";
 
 interface Notification {
   id: string;
@@ -22,6 +24,11 @@ const NotificationBell = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+
+  useEffect(() => {
+    isPushEnabled().then(setPushEnabled);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -94,14 +101,32 @@ const NotificationBell = () => {
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-glass-border/30">
           <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
-          {unreadCount > 0 && (
-            <button
-              onClick={markAllRead}
-              className="text-xs text-primary hover:underline"
-            >
-              Mark all read
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {!pushEnabled && user && (
+              <button
+                onClick={async () => {
+                  const ok = await registerPushNotifications(user.id);
+                  if (ok) {
+                    setPushEnabled(true);
+                    toast.success("Push notifications enabled!");
+                  } else {
+                    toast.error("Could not enable push notifications");
+                  }
+                }}
+                className="text-xs text-neon-orange hover:underline flex items-center gap-1"
+              >
+                <BellRing className="w-3 h-3" /> Enable push
+              </button>
+            )}
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllRead}
+                className="text-xs text-primary hover:underline"
+              >
+                Mark all read
+              </button>
+            )}
+          </div>
         </div>
         <div className="max-h-80 overflow-y-auto">
           {notifications.length === 0 ? (
