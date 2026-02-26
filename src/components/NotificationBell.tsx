@@ -101,14 +101,32 @@ const NotificationBell = () => {
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-glass-border/30">
           <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
-          {unreadCount > 0 && (
-            <button
-              onClick={markAllRead}
-              className="text-xs text-primary hover:underline"
-            >
-              Mark all read
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {!pushEnabled && user && (
+              <button
+                onClick={async () => {
+                  const ok = await registerPushNotifications(user.id);
+                  if (ok) {
+                    setPushEnabled(true);
+                    toast.success("Push notifications enabled!");
+                  } else {
+                    toast.error("Could not enable push notifications");
+                  }
+                }}
+                className="text-xs text-neon-orange hover:underline flex items-center gap-1"
+              >
+                <BellRing className="w-3 h-3" /> Enable push
+              </button>
+            )}
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllRead}
+                className="text-xs text-primary hover:underline"
+              >
+                Mark all read
+              </button>
+            )}
+          </div>
         </div>
         <div className="max-h-80 overflow-y-auto">
           {notifications.length === 0 ? (
