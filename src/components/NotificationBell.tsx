@@ -24,6 +24,11 @@ const NotificationBell = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+
+  useEffect(() => {
+    isPushEnabled().then(setPushEnabled);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
