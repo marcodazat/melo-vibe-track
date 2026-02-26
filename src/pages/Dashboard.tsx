@@ -105,7 +105,16 @@ const Dashboard = () => {
             <Music className="w-6 h-6 text-primary" />
             <h1 className="text-lg font-bold neon-text text-primary">Melo</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/lookup")}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Users className="w-5 h-5" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
