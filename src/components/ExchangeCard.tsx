@@ -25,7 +25,7 @@ const typeColors: Record<string, string> = {
 };
 
 const statusConfig: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
-  pending: { icon: <Clock className="w-3.5 h-3.5" />, label: "Pending", color: "text-neon-orange" },
+  pending: { icon: <Clock className="w-3.5 h-3.5" />, label: "Awaiting Acceptance", color: "text-neon-orange" },
   active: { icon: <Clock className="w-3.5 h-3.5" />, label: "Active", color: "text-primary" },
   settled: { icon: <CheckCircle2 className="w-3.5 h-3.5" />, label: "Settled", color: "text-neon-green" },
   disputed: { icon: <AlertTriangle className="w-3.5 h-3.5" />, label: "Disputed", color: "text-destructive" },

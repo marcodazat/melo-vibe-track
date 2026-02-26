@@ -4,13 +4,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Music, LogOut, User, Search } from "lucide-react";
+import { Music, LogOut, User, Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ExchangeCard from "@/components/ExchangeCard";
 import CreateExchangeDialog from "@/components/CreateExchangeDialog";
 import ExchangeDetail from "@/components/ExchangeDetail";
+import TrustScoreBadge from "@/components/TrustScoreBadge";
+import NotificationBell from "@/components/NotificationBell";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -103,7 +105,16 @@ const Dashboard = () => {
             <Music className="w-6 h-6 text-primary" />
             <h1 className="text-lg font-bold neon-text text-primary">Melo</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/lookup")}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Users className="w-5 h-5" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -126,15 +137,18 @@ const Dashboard = () => {
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Welcome */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <h2 className="text-2xl font-bold text-foreground">
-            Hey{myProfile?.display_name ? `, ${myProfile.display_name}` : ""} 👋
-          </h2>
-          <p className="text-muted-foreground">
-            {activeCount === 0
-              ? "No active exchanges. Create one!"
-              : `You have ${activeCount} active exchange${activeCount > 1 ? "s" : ""}`}
-          </p>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">
+              Hey{myProfile?.display_name ? `, ${myProfile.display_name}` : ""} 👋
+            </h2>
+            <p className="text-muted-foreground">
+              {activeCount === 0
+                ? "No active exchanges. Create one!"
+                : `You have ${activeCount} active exchange${activeCount > 1 ? "s" : ""}`}
+            </p>
+          </div>
+          {myProfile && <TrustScoreBadge score={(myProfile as Tables<"profiles"> & { trust_score?: number }).trust_score ?? 60} size="md" showLabel />}
         </motion.div>
 
         {/* Actions */}

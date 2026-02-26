@@ -121,10 +121,13 @@ const CreateExchangeDialog = ({ onCreated }: CreateExchangeDialogProps) => {
                         setSelectedUser(p);
                         setSearchResults([]);
                       }}
-                      className="w-full text-left px-3 py-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
+                      className="w-full text-left px-3 py-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors flex items-center justify-between"
                     >
-                      <span className="font-medium text-foreground">{p.display_name || p.username || "User"}</span>
-                      {p.username && <span className="text-muted-foreground text-sm ml-2">@{p.username}</span>}
+                      <div>
+                        <span className="font-medium text-foreground">{p.display_name || p.username || "User"}</span>
+                        {p.username && <span className="text-muted-foreground text-sm ml-2">@{p.username}</span>}
+                      </div>
+                      <span className="text-xs font-bold text-primary">{(p as any).trust_score ?? 60}</span>
                     </button>
                   ))}
                 </div>

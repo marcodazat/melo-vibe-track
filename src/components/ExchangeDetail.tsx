@@ -6,12 +6,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { CheckCircle2, FileText, Send, X } from "lucide-react";
+import { CheckCircle2, FileText, Send, X, Shield } from "lucide-react";
 import { format } from "date-fns";
+import TrustScoreBadge from "@/components/TrustScoreBadge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ExchangeDetailProps {
   exchange: Tables<"exchanges"> | null;
-  otherUserProfile: Tables<"profiles"> | null;
+  otherUserProfile: (Tables<"profiles"> & { trust_score?: number }) | null;
   open: boolean;
   onClose: () => void;
   onUpdate: () => void;
@@ -60,8 +64,51 @@ const ExchangeDetail = ({ exchange, otherUserProfile, open, onClose, onUpdate }:
   if (!exchange || !user) return null;
 
   const isCreator = exchange.creator_id === user.id;
+  const isCounterparty = exchange.counterparty_id === user.id;
+  const exchangeData = exchange as Tables<"exchanges"> & { accepted_by_counterparty?: boolean; reminder_enabled?: boolean; reminder_interval_days?: number | null };
+  const isPendingAcceptance = exchange.status === "pending" && !exchangeData.accepted_by_counterparty;
   const myConfirmed = isCreator ? exchange.creator_confirmed_settled : exchange.counterparty_confirmed_settled;
   const otherConfirmed = isCreator ? exchange.counterparty_confirmed_settled : exchange.creator_confirmed_settled;
+
+  const handleAcceptExchange = async () => {
+    const { error } = await supabase
+      .from("exchanges")
+      .update({ accepted_by_counterparty: true, status: "active" } as Record<string, unknown>)
+      .eq("id", exchange.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Exchange accepted!");
+      onUpdate();
+    }
+  };
+
+  const handleDeclineExchange = async () => {
+    const { error } = await supabase
+      .from("exchanges")
+      .update({ status: "cancelled" } as Record<string, unknown>)
+      .eq("id", exchange.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Exchange declined.");
+      onUpdate();
+    }
+  };
+
+  const handleToggleReminder = async (enabled: boolean) => {
+    const { error } = await supabase
+      .from("exchanges")
+      .update({ reminder_enabled: enabled, reminder_interval_days: enabled ? 1 : null } as Record<string, unknown>)
+      .eq("id", exchange.id);
+    if (error) toast.error(error.message);
+  };
+
+  const handleReminderInterval = async (days: string) => {
+    const { error } = await supabase
+      .from("exchanges")
+      .update({ reminder_interval_days: parseInt(days) } as Record<string, unknown>)
+      .eq("id", exchange.id);
+    if (error) toast.error(error.message);
+  };
 
   const handleConfirmSettle = async () => {
     const field = isCreator ? "creator_confirmed_settled" : "counterparty_confirmed_settled";
@@ -104,12 +151,17 @@ const ExchangeDetail = ({ exchange, otherUserProfile, open, onClose, onUpdate }:
         </DialogHeader>
 
         <div className="space-y-4 flex-1 overflow-y-auto">
+          {/* Trust Score + User Info */}
+          <div className="flex items-center gap-3 bg-secondary/30 rounded-lg p-3">
+            <TrustScoreBadge score={otherUserProfile?.trust_score ?? 60} size="sm" />
+            <div>
+              <p className="font-medium text-foreground">{otherUserProfile?.display_name || otherUserProfile?.username || "User"}</p>
+              {otherUserProfile?.username && <p className="text-xs text-muted-foreground">@{otherUserProfile.username}</p>}
+            </div>
+          </div>
+
           {/* Info */}
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <span className="text-muted-foreground">With</span>
-              <p className="font-medium text-foreground">{otherUserProfile?.display_name || otherUserProfile?.username || "User"}</p>
-            </div>
             <div>
               <span className="text-muted-foreground">Amount</span>
               <p className="font-medium text-foreground">{exchange.amount ? `$${Number(exchange.amount).toFixed(2)}` : "N/A"}</p>
@@ -130,13 +182,64 @@ const ExchangeDetail = ({ exchange, otherUserProfile, open, onClose, onUpdate }:
 
           {exchange.contract_terms && (
             <div className="bg-secondary/50 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1"><FileText className="w-3 h-3" /> Contract</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1"><FileText className="w-3 h-3" /> Contract Terms</p>
               <p className="text-sm text-foreground">{exchange.contract_terms}</p>
             </div>
           )}
 
+          {/* Acceptance (counterparty must accept before exchange becomes active) */}
+          {isPendingAcceptance && isCounterparty && (
+            <div className="bg-neon-orange/10 border border-neon-orange/30 rounded-lg p-4 space-y-3">
+              <p className="text-sm font-medium text-foreground">⚠️ Review & Accept</p>
+              <p className="text-xs text-muted-foreground">Review the terms above carefully before accepting this exchange.</p>
+              <div className="flex gap-2">
+                <Button onClick={handleAcceptExchange} size="sm" className="bg-neon-green text-primary-foreground hover:bg-neon-green/90">
+                  Accept Exchange
+                </Button>
+                <Button onClick={handleDeclineExchange} size="sm" variant="ghost" className="text-destructive hover:text-destructive/80">
+                  Decline
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {isPendingAcceptance && isCreator && (
+            <div className="bg-secondary/30 rounded-lg p-3">
+              <p className="text-sm text-muted-foreground">⏳ Waiting for {otherUserProfile?.display_name || "the other party"} to accept...</p>
+            </div>
+          )}
+
+          {/* Reminders */}
+          {exchange.status !== "settled" && exchange.status !== "cancelled" && isCreator && (
+            <div className="bg-secondary/30 rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-foreground">Auto Reminders</Label>
+                <Switch
+                  checked={!!exchangeData.reminder_enabled}
+                  onCheckedChange={handleToggleReminder}
+                />
+              </div>
+              {exchangeData.reminder_enabled && (
+                <Select
+                  value={String(exchangeData.reminder_interval_days || 1)}
+                  onValueChange={handleReminderInterval}
+                >
+                  <SelectTrigger className="bg-secondary/50 border-glass-border/40 text-foreground text-sm">
+                    <SelectValue placeholder="Interval" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-glass-border/40">
+                    <SelectItem value="1">Every day</SelectItem>
+                    <SelectItem value="2">Every 2 days</SelectItem>
+                    <SelectItem value="3">Every 3 days</SelectItem>
+                    <SelectItem value="7">Weekly</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          )}
+
           {/* Settle */}
-          {exchange.status !== "settled" && exchange.status !== "cancelled" && (
+          {exchange.status === "active" && (
             <div className="bg-secondary/30 rounded-lg p-3 space-y-2">
               <p className="text-sm font-medium text-foreground">Settlement</p>
               <div className="flex items-center gap-2 text-sm">

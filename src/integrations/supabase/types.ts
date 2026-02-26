@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       exchanges: {
         Row: {
+          accepted_by_counterparty: boolean
           amount: number | null
           contract_terms: string | null
           counterparty_confirmed_settled: boolean
@@ -27,11 +28,15 @@ export type Database = {
           due_date: string | null
           exchange_type: string
           id: string
+          last_penalty_applied_at: string | null
+          reminder_enabled: boolean
+          reminder_interval_days: number | null
           status: string
           title: string
           updated_at: string
         }
         Insert: {
+          accepted_by_counterparty?: boolean
           amount?: number | null
           contract_terms?: string | null
           counterparty_confirmed_settled?: boolean
@@ -43,11 +48,15 @@ export type Database = {
           due_date?: string | null
           exchange_type?: string
           id?: string
+          last_penalty_applied_at?: string | null
+          reminder_enabled?: boolean
+          reminder_interval_days?: number | null
           status?: string
           title: string
           updated_at?: string
         }
         Update: {
+          accepted_by_counterparty?: boolean
           amount?: number | null
           contract_terms?: string | null
           counterparty_confirmed_settled?: boolean
@@ -59,6 +68,9 @@ export type Database = {
           due_date?: string | null
           exchange_type?: string
           id?: string
+          last_penalty_applied_at?: string | null
+          reminder_enabled?: boolean
+          reminder_interval_days?: number | null
           status?: string
           title?: string
           updated_at?: string
@@ -97,6 +109,47 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          exchange_id: string | null
+          id: string
+          message: string | null
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          exchange_id?: string | null
+          id?: string
+          message?: string | null
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          exchange_id?: string | null
+          id?: string
+          message?: string | null
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_exchange_id_fkey"
+            columns: ["exchange_id"]
+            isOneToOne: false
+            referencedRelation: "exchanges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -104,6 +157,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          trust_score: number
           updated_at: string
           user_id: string
           username: string | null
@@ -116,6 +170,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          trust_score?: number
           updated_at?: string
           user_id: string
           username?: string | null
@@ -128,6 +183,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          trust_score?: number
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -141,7 +197,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      apply_overdue_penalties: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
