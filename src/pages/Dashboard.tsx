@@ -137,10 +137,11 @@ const Dashboard = () => {
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Welcome */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <h2 className="text-2xl font-bold text-foreground">
-            Hey{myProfile?.display_name ? `, ${myProfile.display_name}` : ""} 👋
-          </h2>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">
+              Hey{myProfile?.display_name ? `, ${myProfile.display_name}` : ""} 👋
+            </h2>
           <p className="text-muted-foreground">
             {activeCount === 0
               ? "No active exchanges. Create one!"
