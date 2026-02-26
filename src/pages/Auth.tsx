@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Music, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import meloLogo from "@/assets/melo-logo.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
