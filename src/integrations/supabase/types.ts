@@ -14,7 +14,128 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      exchanges: {
+        Row: {
+          amount: number | null
+          contract_terms: string | null
+          counterparty_confirmed_settled: boolean
+          counterparty_id: string
+          created_at: string
+          creator_confirmed_settled: boolean
+          creator_id: string
+          description: string | null
+          due_date: string | null
+          exchange_type: string
+          id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          contract_terms?: string | null
+          counterparty_confirmed_settled?: boolean
+          counterparty_id: string
+          created_at?: string
+          creator_confirmed_settled?: boolean
+          creator_id: string
+          description?: string | null
+          due_date?: string | null
+          exchange_type?: string
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          contract_terms?: string | null
+          counterparty_confirmed_settled?: boolean
+          counterparty_id?: string
+          created_at?: string
+          creator_confirmed_settled?: boolean
+          creator_id?: string
+          description?: string | null
+          due_date?: string | null
+          exchange_type?: string
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          exchange_id: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          exchange_id: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          exchange_id?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_exchange_id_fkey"
+            columns: ["exchange_id"]
+            isOneToOne: false
+            referencedRelation: "exchanges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          cashapp_handle: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          username: string | null
+          venmo_handle: string | null
+          zelle_handle: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          cashapp_handle?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          venmo_handle?: string | null
+          zelle_handle?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          cashapp_handle?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          venmo_handle?: string | null
+          zelle_handle?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
