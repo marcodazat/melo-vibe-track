@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ExchangeCard from "@/components/ExchangeCard";
 import CreateExchangeDialog from "@/components/CreateExchangeDialog";
 import ExchangeDetail from "@/components/ExchangeDetail";
+import TrustScoreBadge from "@/components/TrustScoreBadge";
+import NotificationBell from "@/components/NotificationBell";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
