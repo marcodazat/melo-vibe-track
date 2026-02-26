@@ -6,12 +6,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { CheckCircle2, FileText, Send, X } from "lucide-react";
+import { CheckCircle2, FileText, Send, X, Shield } from "lucide-react";
 import { format } from "date-fns";
+import TrustScoreBadge from "@/components/TrustScoreBadge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ExchangeDetailProps {
   exchange: Tables<"exchanges"> | null;
-  otherUserProfile: Tables<"profiles"> | null;
+  otherUserProfile: (Tables<"profiles"> & { trust_score?: number }) | null;
   open: boolean;
   onClose: () => void;
   onUpdate: () => void;
