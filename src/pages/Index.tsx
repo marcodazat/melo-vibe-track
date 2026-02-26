@@ -2,8 +2,9 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
-import { Music, ArrowRight, DollarSign, Heart, Shield } from "lucide-react";
+import { ArrowRight, DollarSign, Heart, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import meloLogo from "@/assets/melo-logo.png";
 
 const Index = () => {
   const { user, loading } = useAuth();
