@@ -1,5 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 
+// Extend ServiceWorkerRegistration to include pushManager
+declare global {
+  interface ServiceWorkerRegistration {
+    pushManager: PushManager;
+  }
+}
+
 const VAPID_PUBLIC_KEY = 'BD0D6Rq6_A3StaTJxi0EMTPFduXfXGqGor1B_zyHtjSWeXZZW5NQnK1kZ3DVn4nlCTy8YNOFOcM2OZ6A1eovqjA';
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
