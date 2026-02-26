@@ -103,7 +103,7 @@ const Dashboard = () => {
       <header className="glass-strong border-b border-glass-border/30 sticky top-0 z-50">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Music className="w-6 h-6 text-primary" />
+            <img src={meloLogo} alt="Melo" className="w-8 h-8 rounded-lg" />
             <h1 className="text-lg font-bold neon-text text-primary">Melo</h1>
           </div>
           <div className="flex items-center gap-1">
