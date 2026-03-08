@@ -1,0 +1,9 @@
+# compiler: R8
+# compiler_version: 9.0.32
+# min_api: 24
+# common_typos_disable
+# {"id":"com.android.tools.r8.mapping","version":"2.2"}
+# pg_map_id: 135baf75b51190fcb3484b2a034ec1a4a6412a8a898d3d706e41d811849665a3
+# pg_map_hash: SHA-256 135baf75b51190fcb3484b2a034ec1a4a6412a8a898d3d706e41d811849665a3
+
+[TRUNCATED FOR FILE]
