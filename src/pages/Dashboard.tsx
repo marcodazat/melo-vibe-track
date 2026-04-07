@@ -149,7 +149,7 @@ const Dashboard = () => {
                 : `You have ${activeCount} active exchange${activeCount > 1 ? "s" : ""}`}
             </p>
           </div>
-          {myProfile && <TrustScoreBadge score={(myProfile as Tables<"profiles"> & { trust_score?: number }).trust_score ?? 60} size="md" showLabel />}
+          {myProfile && <TrustScoreBadge score={(myProfile as Tables<"profiles"> & { trust_score?: number }).trust_score ?? 60} size="md" showLabel/>}
         </motion.div>
 
         {/* Actions */}

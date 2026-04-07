@@ -54,7 +54,10 @@ const ExchangeDetail = ({ exchange, otherUserProfile, open, onClose, onUpdate }:
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      channel.unsubscribe();
+      supabase.removeChannel(channel);
+    };
   }, [exchange]);
 
   useEffect(() => {
@@ -131,6 +134,12 @@ const ExchangeDetail = ({ exchange, otherUserProfile, open, onClose, onUpdate }:
     e.preventDefault();
     if (!newMessage.trim()) return;
 
+    const MAX_LENGTH = 500;
+    if (newMessage.trim().length > MAX_LENGTH) {
+      toast.error(`Message must be under ${MAX_LENGTH} characters`);
+      return;
+    }
+
     setSending(true);
     const { error } = await supabase.from("messages").insert({
       exchange_id: exchange.id,
@@ -138,8 +147,11 @@ const ExchangeDetail = ({ exchange, otherUserProfile, open, onClose, onUpdate }:
       content: newMessage.trim(),
     });
 
-    if (error) toast.error(error.message);
-    else setNewMessage("");
+    if (error) {
+      toast.error(error.message);
+    } else {
+      setNewMessage("");
+    }
     setSending(false);
   };
 

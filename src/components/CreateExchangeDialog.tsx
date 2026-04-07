@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Plus, Search } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
+type ProfileWithTrustScore = Tables<"profiles"> & { trust_score?: number };
+
 interface CreateExchangeDialogProps {
   onCreated: () => void;
 }
@@ -19,7 +21,7 @@ const CreateExchangeDialog = ({ onCreated }: CreateExchangeDialogProps) => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Tables<"profiles">[]>([]);
+  const [searchResults, setSearchResults] = useState<ProfileWithTrustScore[]>([]);
   const [selectedUser, setSelectedUser] = useState<Tables<"profiles"> | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -127,7 +129,7 @@ const CreateExchangeDialog = ({ onCreated }: CreateExchangeDialogProps) => {
                         <span className="font-medium text-foreground">{p.display_name || p.username || "User"}</span>
                         {p.username && <span className="text-muted-foreground text-sm ml-2">@{p.username}</span>}
                       </div>
-                      <span className="text-xs font-bold text-primary">{(p as any).trust_score ?? 60}</span>
+                      <span className="text-xs font-bold text-primary">{p.trust_score ?? 60}</span>
                     </button>
                   ))}
                 </div>

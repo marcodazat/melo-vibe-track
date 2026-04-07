@@ -29,7 +29,12 @@ const ProfileSetup = () => {
         .select("*")
         .eq("user_id", user.id)
         .single()
-        .then(({ data }) => {
+        .then(({ data, error }) => {
+          // PGRST116 = no rows found — normal for new users
+          if (error && error.code !== "PGRST116") {
+            toast.error("Could not load profile");
+            return;
+          }
           if (data) {
             setDisplayName(data.display_name || "");
             setUsername(data.username || "");
@@ -45,6 +50,16 @@ const ProfileSetup = () => {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
+
+    const MAX_SIZE_MB = 5;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      toast.error(`Image must be under ${MAX_SIZE_MB}MB`);
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      toast.error("File must be an image");
+      return;
+    }
 
     setUploading(true);
     const fileExt = file.name.split(".").pop();

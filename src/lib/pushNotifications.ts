@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-const VAPID_PUBLIC_KEY = 'BD0D6Rq6_A3StaTJxi0EMTPFduXfXGqGor1B_zyHtjSWeXZZW5NQnK1kZ3DVn4nlCTy8YNOFOcM2OZ6A1eovqjA';
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -22,6 +22,11 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 export async function registerPushNotifications(userId: string): Promise<boolean> {
   try {
+    if (!VAPID_PUBLIC_KEY) {
+      console.warn('VITE_VAPID_PUBLIC_KEY is not set');
+      return false;
+    }
+
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
       console.warn('Push notifications not supported');
       return false;
