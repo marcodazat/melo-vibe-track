@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LogOut, User, Search, Users, Shield } from "lucide-react";
+import { LogOut, User, Search, Users, Shield, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import meloLogo from "@/assets/melo-logo.png";
 import { Input } from "@/components/ui/input";
@@ -173,7 +173,16 @@ const Dashboard = () => {
               className="pl-10 bg-secondary/50 border-glass-border/40 text-foreground placeholder:text-muted-foreground/50"
             />
           </div>
-          <CreateExchangeDialog onCreated={fetchExchanges} />
+          {myProfile?.username ? (
+            <CreateExchangeDialog onCreated={fetchExchanges} />
+          ) : (
+            <Button
+              onClick={() => { toast.error("Set a username in your profile first"); navigate("/profile"); }}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 neon-glow gap-2"
+            >
+              <Plus className="w-4 h-4" /> New Exchange
+            </Button>
+          )}
         </div>
 
         {/* Tabs */}

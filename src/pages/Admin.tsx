@@ -56,6 +56,9 @@ const Admin = () => {
   const [exchanges, setExchanges] = useState<Exchange[]>([]);
   const [friendships, setFriendships] = useState<Friendship[]>([]);
   const [userSearch, setUserSearch] = useState("");
+  const [userAdminFilter, setUserAdminFilter] = useState("all");
+  const [userScoreFilter, setUserScoreFilter] = useState("all");
+  const [userSort, setUserSort] = useState("newest");
   const [exchangeFilter, setExchangeFilter] = useState("all");
   const [editingScore, setEditingScore] = useState<{ userId: string; score: string } | null>(null);
   const [editingStatus, setEditingStatus] = useState<{ id: string; status: string } | null>(null);
@@ -183,15 +186,31 @@ const Admin = () => {
     </div>;
   }
 
-  const filteredUsers = users.filter((u) => {
-    if (!userSearch) return true;
-    const q = userSearch.toLowerCase();
-    return (
-      u.display_name?.toLowerCase().includes(q) ||
-      u.username?.toLowerCase().includes(q) ||
-      u.user_id.includes(q)
-    );
-  });
+  const filteredUsers = users
+    .filter((u) => {
+      if (userSearch) {
+        const q = userSearch.toLowerCase();
+        if (
+          !u.display_name?.toLowerCase().includes(q) &&
+          !u.username?.toLowerCase().includes(q) &&
+          !u.user_id.includes(q)
+        ) return false;
+      }
+      if (userAdminFilter === "admin" && !u.is_admin) return false;
+      if (userAdminFilter === "regular" && u.is_admin) return false;
+      if (userScoreFilter === "high" && (u.trust_score ?? 60) < 75) return false;
+      if (userScoreFilter === "medium" && ((u.trust_score ?? 60) < 40 || (u.trust_score ?? 60) >= 75)) return false;
+      if (userScoreFilter === "low" && (u.trust_score ?? 60) >= 40) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (userSort === "newest") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (userSort === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      if (userSort === "score_high") return (b.trust_score ?? 60) - (a.trust_score ?? 60);
+      if (userSort === "score_low") return (a.trust_score ?? 60) - (b.trust_score ?? 60);
+      if (userSort === "name") return (a.display_name || "").localeCompare(b.display_name || "");
+      return 0;
+    });
 
   const filteredExchanges = exchanges.filter((e) =>
     exchangeFilter === "all" ? true : e.status === exchangeFilter
@@ -253,14 +272,52 @@ const Admin = () => {
 
           {/* USERS TAB */}
           <TabsContent value="users" className="space-y-4 mt-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-                placeholder="Search by name, username, or ID..."
-                className="pl-10 bg-secondary/50 border-glass-border/40 text-foreground"
-              />
+            <div className="space-y-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="Search by name, username, or ID..."
+                  className="pl-10 bg-secondary/50 border-glass-border/40 text-foreground"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Select value={userAdminFilter} onValueChange={setUserAdminFilter}>
+                  <SelectTrigger className="w-36 h-8 bg-secondary/50 border-glass-border/40 text-foreground text-xs">
+                    <SelectValue placeholder="Role" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-glass-border/40">
+                    <SelectItem value="all">All roles</SelectItem>
+                    <SelectItem value="admin">Admins only</SelectItem>
+                    <SelectItem value="regular">Regular users</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={userScoreFilter} onValueChange={setUserScoreFilter}>
+                  <SelectTrigger className="w-36 h-8 bg-secondary/50 border-glass-border/40 text-foreground text-xs">
+                    <SelectValue placeholder="Trust score" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-glass-border/40">
+                    <SelectItem value="all">All scores</SelectItem>
+                    <SelectItem value="high">High (75-100)</SelectItem>
+                    <SelectItem value="medium">Medium (40-74)</SelectItem>
+                    <SelectItem value="low">Low (0-39)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={userSort} onValueChange={setUserSort}>
+                  <SelectTrigger className="w-36 h-8 bg-secondary/50 border-glass-border/40 text-foreground text-xs">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-glass-border/40">
+                    <SelectItem value="newest">Newest first</SelectItem>
+                    <SelectItem value="oldest">Oldest first</SelectItem>
+                    <SelectItem value="score_high">Highest score</SelectItem>
+                    <SelectItem value="score_low">Lowest score</SelectItem>
+                    <SelectItem value="name">Name A-Z</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-xs text-muted-foreground self-center">{filteredUsers.length} result{filteredUsers.length !== 1 ? "s" : ""}</span>
+              </div>
             </div>
 
             <div className="space-y-2">
