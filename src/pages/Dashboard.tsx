@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LogOut, User, Search, Users } from "lucide-react";
+import { LogOut, User, Search, Users, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import meloLogo from "@/assets/melo-logo.png";
 import { Input } from "@/components/ui/input";
@@ -124,6 +124,16 @@ const Dashboard = () => {
             >
               <User className="w-5 h-5" />
             </Button>
+            {(myProfile as (Tables<"profiles"> & { is_admin?: boolean }) | null)?.is_admin && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/admin")}
+                className="text-primary hover:text-primary/80"
+              >
+                <Shield className="w-5 h-5" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
