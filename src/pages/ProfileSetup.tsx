@@ -23,28 +23,35 @@ const ProfileSetup = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single()
-        .then(({ data, error }) => {
-          // PGRST116 = no rows found — normal for new users
-          if (error && error.code !== "PGRST116") {
-            toast.error("Could not load profile");
-            return;
-          }
-          if (data) {
-            setDisplayName(data.display_name || "");
-            setUsername(data.username || "");
-            setVenmo(data.venmo_handle || "");
-            setCashapp(data.cashapp_handle || "");
-            setZelle(data.zelle_handle || "");
-            setAvatarUrl(data.avatar_url);
-          }
-        });
-    }
+    if (!user) return;
+
+    // Pre-populate from auth metadata (set during registration)
+    const meta = user.user_metadata || {};
+    const metaName = [meta.first_name, meta.last_name].filter(Boolean).join(" ").trim();
+
+    supabase
+      .from("profiles")
+      .select("*")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data, error }) => {
+        // PGRST116 = no rows found — normal for new users
+        if (error && error.code !== "PGRST116") {
+          toast.error("Could not load profile");
+          return;
+        }
+        if (data) {
+          setDisplayName(data.display_name || metaName);
+          setUsername(data.username || "");
+          setVenmo(data.venmo_handle || "");
+          setCashapp(data.cashapp_handle || "");
+          setZelle(data.zelle_handle || meta.phone || "");
+          setAvatarUrl(data.avatar_url);
+        } else {
+          // No profile row yet — seed from registration metadata
+          setDisplayName(metaName);
+        }
+      });
   }, [user]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

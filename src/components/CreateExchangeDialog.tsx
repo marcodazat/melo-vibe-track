@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -17,6 +17,9 @@ interface CreateExchangeDialogProps {
   onCreated: () => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const friendshipsTable = () => (supabase as any).from("friendships");
+
 const CreateExchangeDialog = ({ onCreated }: CreateExchangeDialogProps) => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -30,10 +33,32 @@ const CreateExchangeDialog = ({ onCreated }: CreateExchangeDialogProps) => {
   const [contractTerms, setContractTerms] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const [friendIds, setFriendIds] = useState<string[]>([]);
+
+  // Load accepted friend IDs when dialog opens
+  useEffect(() => {
+    if (!open || !user) return;
+    friendshipsTable()
+      .select("requester_id, addressee_id")
+      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+      .eq("status", "accepted")
+      .then(({ data }: { data: { requester_id: string; addressee_id: string }[] | null }) => {
+        const ids = (data || []).map((f) =>
+          f.requester_id === user.id ? f.addressee_id : f.requester_id
+        );
+        setFriendIds(ids);
+      });
+  }, [open, user]);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    if (query.length < 2) {
+    if (query.length < 2 || friendIds.length === 0) {
+      setSearchResults([]);
+      return;
+    }
+
+    const safeQuery = query.replace(/[%_(),]/g, "").trim().slice(0, 50);
+    if (!safeQuery) {
       setSearchResults([]);
       return;
     }
@@ -41,8 +66,8 @@ const CreateExchangeDialog = ({ onCreated }: CreateExchangeDialogProps) => {
     const { data } = await supabase
       .from("profiles")
       .select("*")
-      .neq("user_id", user?.id || "")
-      .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
+      .in("user_id", friendIds)
+      .or(`username.ilike.%${safeQuery}%,display_name.ilike.%${safeQuery}%`)
       .limit(5);
 
     setSearchResults(data || []);
@@ -100,39 +125,47 @@ const CreateExchangeDialog = ({ onCreated }: CreateExchangeDialogProps) => {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          {/* User search */}
+          {/* User search — friends only */}
           {!selectedUser ? (
             <div className="space-y-2">
-              <Label className="text-foreground/80">Find a friend</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  placeholder="Search by username or name..."
-                  className="pl-10 bg-secondary/50 border-glass-border/40 text-foreground placeholder:text-muted-foreground/50"
-                />
-              </div>
-              {searchResults.length > 0 && (
-                <div className="space-y-1 mt-2">
-                  {searchResults.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedUser(p);
-                        setSearchResults([]);
-                      }}
-                      className="w-full text-left px-3 py-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors flex items-center justify-between"
-                    >
-                      <div>
-                        <span className="font-medium text-foreground">{p.display_name || p.username || "User"}</span>
-                        {p.username && <span className="text-muted-foreground text-sm ml-2">@{p.username}</span>}
-                      </div>
-                      <span className="text-xs font-bold text-primary">{p.trust_score ?? 60}</span>
-                    </button>
-                  ))}
-                </div>
+              <Label className="text-foreground/80">Choose a friend</Label>
+              {friendIds.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">
+                  Add friends first before creating an exchange.
+                </p>
+              ) : (
+                <>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={searchQuery}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      placeholder="Search your friends..."
+                      className="pl-10 bg-secondary/50 border-glass-border/40 text-foreground placeholder:text-muted-foreground/50"
+                    />
+                  </div>
+                  {searchResults.length > 0 && (
+                    <div className="space-y-1 mt-2">
+                      {searchResults.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedUser(p);
+                            setSearchResults([]);
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors flex items-center justify-between"
+                        >
+                          <div>
+                            <span className="font-medium text-foreground">{p.display_name || p.username || "User"}</span>
+                            {p.username && <span className="text-muted-foreground text-sm ml-2">@{p.username}</span>}
+                          </div>
+                          <span className="text-xs font-bold text-primary">{p.trust_score ?? 60}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ) : (
