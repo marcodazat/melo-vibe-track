@@ -1,7 +1,7 @@
-project_id = "eeqidkyfzrsilsvvburu"
+project_id = "vhghhefzsveugissnweb"
 
 [functions.generate-vapid-keys]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-push]
-verify_jwt = false
+verify_jwt = true

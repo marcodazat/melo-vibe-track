@@ -91,6 +91,24 @@ const ProfileSetup = () => {
     e.preventDefault();
     if (!user) return;
 
+    // Input validation
+    if (displayName.length > 100) {
+      toast.error("Display name must be under 100 characters");
+      return;
+    }
+    if (username && (username.length < 3 || username.length > 30)) {
+      toast.error("Username must be 3-30 characters");
+      return;
+    }
+    if (username && !/^[a-zA-Z0-9_]+$/.test(username)) {
+      toast.error("Username can only contain letters, numbers, and underscores");
+      return;
+    }
+    if (venmo.length > 50 || cashapp.length > 50 || zelle.length > 100) {
+      toast.error("Payment handles are too long");
+      return;
+    }
+
     setSaving(true);
     const { error } = await supabase
       .from("profiles")

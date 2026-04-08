@@ -83,8 +83,14 @@ const UserLookup = () => {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = query.trim().replace(/^@/, "");
+    const trimmed = query.trim().replace(/^@/, "").slice(0, 30);
     if (!trimmed || !user) return;
+
+    // Only allow valid username characters
+    if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+      toast.error("Username can only contain letters, numbers, and underscores");
+      return;
+    }
 
     const { data } = await supabase
       .from("profiles")

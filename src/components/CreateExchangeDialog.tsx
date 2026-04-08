@@ -77,6 +77,13 @@ const CreateExchangeDialog = ({ onCreated }: CreateExchangeDialogProps) => {
     e.preventDefault();
     if (!user || !selectedUser) return;
 
+    if (title.length > 100) { toast.error("Title must be under 100 characters"); return; }
+    if (description.length > 1000) { toast.error("Description must be under 1000 characters"); return; }
+    if (contractTerms.length > 2000) { toast.error("Contract terms must be under 2000 characters"); return; }
+    if (amount && (isNaN(parseFloat(amount)) || parseFloat(amount) < 0 || parseFloat(amount) > 999999)) {
+      toast.error("Amount must be between 0 and 999,999"); return;
+    }
+
     setLoading(true);
     const { error } = await supabase.from("exchanges").insert({
       creator_id: user.id,

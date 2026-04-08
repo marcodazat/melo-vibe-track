@@ -2,14 +2,23 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.6";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-};
+const ALLOWED_ORIGINS = [
+  'https://melo-vibe-track.vercel.app',
+  'http://localhost:8080',
+];
 
-const VAPID_PUBLIC_KEY = 'BD0D6Rq6_A3StaTJxi0EMTPFduXfXGqGor1B_zyHtjSWeXZZW5NQnK1kZ3DVn4nlCTy8YNOFOcM2OZ6A1eovqjA';
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('origin') || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
+}
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -24,12 +33,21 @@ serve(async (req) => {
       });
     }
 
+    // Validate input lengths
+    if (typeof title !== 'string' || title.length > 200) {
+      return new Response(JSON.stringify({ error: 'Invalid title' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
     const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-    if (!vapidPrivateKey) {
-      return new Response(JSON.stringify({ error: 'VAPID_PRIVATE_KEY not configured' }), {
+    if (!vapidPublicKey || !vapidPrivateKey) {
+      return new Response(JSON.stringify({ error: 'VAPID keys not configured' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -37,11 +55,10 @@ serve(async (req) => {
 
     webpush.setVapidDetails(
       'mailto:notifications@melo.app',
-      VAPID_PUBLIC_KEY,
+      vapidPublicKey,
       vapidPrivateKey
     );
 
-    // Fetch user's push subscriptions
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     const { data: subscriptions, error: fetchError } = await supabase
       .from('push_subscriptions')
@@ -49,7 +66,7 @@ serve(async (req) => {
       .eq('user_id', user_id);
 
     if (fetchError) {
-      return new Response(JSON.stringify({ error: fetchError.message }), {
+      return new Response(JSON.stringify({ error: 'Failed to fetch subscriptions' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -81,7 +98,6 @@ serve(async (req) => {
         );
         results.push({ endpoint: sub.endpoint, status: 'sent' });
       } catch (error: any) {
-        // Remove expired/invalid subscriptions
         if (error.statusCode === 410 || error.statusCode === 404) {
           await supabase
             .from('push_subscriptions')
@@ -89,7 +105,7 @@ serve(async (req) => {
             .eq('id', sub.id);
           results.push({ endpoint: sub.endpoint, status: 'removed (expired)' });
         } else {
-          results.push({ endpoint: sub.endpoint, status: 'failed', error: error.message });
+          results.push({ endpoint: sub.endpoint, status: 'failed' });
         }
       }
     }
@@ -98,9 +114,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
     });
   }
 });

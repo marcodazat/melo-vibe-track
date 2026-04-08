@@ -23,18 +23,18 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 export async function registerPushNotifications(userId: string): Promise<boolean> {
   try {
     if (!VAPID_PUBLIC_KEY) {
-      console.warn('VITE_VAPID_PUBLIC_KEY is not set');
+      if (import.meta.env.DEV) console.warn('VITE_VAPID_PUBLIC_KEY is not set');
       return false;
     }
 
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      console.warn('Push notifications not supported');
+      if (import.meta.env.DEV) console.warn('Push notifications not supported');
       return false;
     }
 
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
-      console.warn('Push notification permission denied');
+      if (import.meta.env.DEV) console.warn('Push notification permission denied');
       return false;
     }
 
@@ -64,13 +64,13 @@ export async function registerPushNotifications(userId: string): Promise<boolean
       );
 
     if (error) {
-      console.error('Failed to save push subscription:', error);
+      if (import.meta.env.DEV) console.error('Failed to save push subscription:', error);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('Push registration failed:', error);
+    if (import.meta.env.DEV) console.error('Push registration failed:', error);
     return false;
   }
 }
@@ -104,6 +104,6 @@ export async function unregisterPush(userId: string): Promise<void> {
       }
     }
   } catch (error) {
-    console.error('Push unregister failed:', error);
+    if (import.meta.env.DEV) console.error('Push unregister failed:', error);
   }
 }
